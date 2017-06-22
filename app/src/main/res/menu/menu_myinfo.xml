@@ -1,0 +1,11 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="io.whisper.mytest.MainActivity">
+    <item
+        android:id="@+id/action_myinfo"
+        android:orderInCategory="100"
+        android:icon="@android:drawable/ic_menu_info_details"
+        app:showAsAction="always"
+        android:title=""/>
+</menu>
