@@ -37,6 +37,8 @@ public class AgentLoginActivity extends AppCompatActivity {
 
 		SharedPreferences preferences = getSharedPreferences("whisper", Context.MODE_PRIVATE);
 		if (preferences.getBoolean("hasLogin", false)) {
+			PfdAgent.singleton().start();
+
 			startActivity(new Intent(this, WebBrowserActivity.class));
 			finish();
 			return;
@@ -133,6 +135,8 @@ public class AgentLoginActivity extends AppCompatActivity {
 				editor.putString("login", mLogin);
 				editor.putString("password", mPassword);
 				editor.commit();
+
+				PfdAgent.singleton().start();
 
 				startActivity(new Intent(AgentLoginActivity.this, WebBrowserActivity.class));
 				finish();

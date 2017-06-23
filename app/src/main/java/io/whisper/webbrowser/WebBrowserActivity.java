@@ -51,13 +51,10 @@ public class WebBrowserActivity extends AppCompatActivity  {
 		filter.addAction(PfdAgent.ACTION_AGENT_STATUS_CHANGED);
 		filter.addAction(PfdServer.ACTION_SERVER_STATUS_CHANGED);
 		registerReceiver(broadcastReceiver, filter);
-
-		PfdAgent.singleton().start();
 	}
 
 	@Override
 	protected void onDestroy() {
-		PfdAgent.singleton().kill();
 		unregisterReceiver(broadcastReceiver);
 		super.onDestroy();
 	}

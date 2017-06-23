@@ -33,6 +33,11 @@ public class PfdAgent extends AbstractWhisperHandler {
 	private static final String mApiServerUrl  = "https://whisper.freeddns.org:8443/web/api";
 	private static final String mMqttServerUri = "ssl://whisper.freeddns.org:8883";
 
+	private static final String mStunHost = "whisper.freeddns.org";
+	private static final String mTurnHost  = "whisper.freeddns.org";
+	private static final String mTurnUsername  = "whisper";
+	private static final String mTurnPassword = "io2016whisper";
+
 	public static PfdAgent pfdAgentInst;
 
 	private Context mContext;
@@ -108,8 +113,12 @@ public class PfdAgent extends AbstractWhisperHandler {
 	}
 
 	public void checkLogin(String login, String password) throws WhisperException {
-		String  appPath = mContext.getFilesDir().getAbsolutePath();
 		String deviceId = ((TelephonyManager)mContext.getSystemService(mContext.TELEPHONY_SERVICE)).getDeviceId();
+		String whisperPath = mContext.getFilesDir().getAbsolutePath() + "/whisper";
+		File whisperDir = new File(whisperPath);
+		if (!whisperDir.exists()) {
+			whisperDir.mkdirs();
+		}
 
 		loadCertFile();
 
@@ -121,7 +130,7 @@ public class PfdAgent extends AbstractWhisperHandler {
 			.setApiServerUrl(mApiServerUrl)
 			.setMqttServerUri(mMqttServerUri)
 			.setTrustStore(getTruestStore())
-			.setPersistentLocation(appPath)
+			.setPersistentLocation(whisperPath)
 			.setDeviceId(deviceId)
 			.setConnectTimeout(5)
 			.setRetryInterval(1);
@@ -130,7 +139,13 @@ public class PfdAgent extends AbstractWhisperHandler {
 		Log.i(TAG, "Agent whisper instance created successfully");
 
 		Manager.Options sopt = new Manager.Options();
-		sopt.setTransports(Manager.Options.TRANSPORT_TCP);
+		sopt.setTransports(Manager.Options.TRANSPORT_ICE |
+				Manager.Options.TRANSPORT_UDP |
+				Manager.Options.TRANSPORT_TCP);
+		sopt.setStunHost(mStunHost);
+		sopt.setTurnHost(mTurnHost);
+		sopt.setTurnUserName(mTurnUsername);
+		sopt.setTurnPassword(mTurnPassword);
 
 		mSessionManager = Manager.getInstance(mWhisper, sopt);
 		Log.i(TAG, "Agent session manager created successfully");
@@ -140,16 +155,27 @@ public class PfdAgent extends AbstractWhisperHandler {
 		try {
 			if (mWhisper == null) {
 				checkLogin();
-				mWhisper.start(50);
-			} else {
-				Log.i(TAG, "Agent whisper instance already created");
-				notifyAgentStatus(AGENT_READY);
 			}
+
+			mWhisper.start(50);
 		} catch (WhisperException e) {
 			Log.i(TAG, String.format("checkLogin error (0x%x)", e.getErrorCode()));
 			//TODO;
 			notifyAgentStatus(-1);
 		}
+	}
+
+	public void logout() {
+		String whisperPath = mContext.getFilesDir().getAbsolutePath() + "/whisper";
+		File whisperDir = new File(whisperPath);
+		if (whisperDir.exists()) {
+			File[] files = whisperDir.listFiles();
+			for (File file : files) {
+				file.delete();
+			}
+		}
+
+		this.kill();
 	}
 
 	public void kill() {
@@ -164,6 +190,7 @@ public class PfdAgent extends AbstractWhisperHandler {
 			mSessionManager.cleanup();
 			mWhisper.kill();
 		}
+
 		pfdAgentInst = null;
 	}
 

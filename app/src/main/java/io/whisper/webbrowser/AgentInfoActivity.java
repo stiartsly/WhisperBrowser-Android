@@ -71,7 +71,11 @@ public class AgentInfoActivity extends AppCompatActivity {
 				editor.remove("password");
 				editor.commit();
 
-				startActivity(new Intent(AgentInfoActivity.this, AgentLoginActivity.class));
+				PfdAgent.singleton().logout();
+
+				Intent intent = new Intent(AgentInfoActivity.this, AgentLoginActivity.class);
+				intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+				startActivity(intent);
 			}
 		});
 	}
