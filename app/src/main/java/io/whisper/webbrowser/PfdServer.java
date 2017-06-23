@@ -21,7 +21,7 @@ class PfdServer extends AbstractStreamHandler implements SessionRequestCompleteH
 	private Stream mStream;
 	private String mSdp;
 
-	private String mServiceName = "";
+	private String mServiceName = "web";
 
 	private static final int STATUS_READY   = 0;
 	private static final int STATUS_OFFLINE = 1;
@@ -74,6 +74,13 @@ class PfdServer extends AbstractStreamHandler implements SessionRequestCompleteH
 			return;
 		}
 
+		try {
+			mSession.start(sdp);
+			Log.i(TAG, "Session started ---> success");
+		} catch (WhisperException e) {
+			Log.e(TAG, "Session start error " + e.getErrorCode());
+		}
+
 		mSdp = sdp;
 	}
 
@@ -88,8 +95,6 @@ class PfdServer extends AbstractStreamHandler implements SessionRequestCompleteH
 
 				case TransportReady:
 					Log.i(TAG, "Stream to " + getServerId() + " transport ready");
-					mSession.start(mSdp);
-					Log.i(TAG, "Session to " + getServerId() + " started.");
 					break;
 
 				case Connected:
@@ -104,9 +109,11 @@ class PfdServer extends AbstractStreamHandler implements SessionRequestCompleteH
 					break;
 				case Closed:
 					Log.i(TAG, "Stream closed");
+					close();
 					break;
 				case Error:
 					Log.i(TAG, "Stream error");
+					close();
 					break;
 			}
 		} catch (WhisperException e) {
@@ -136,7 +143,7 @@ class PfdServer extends AbstractStreamHandler implements SessionRequestCompleteH
 			return;
 		}
 
-		if (mServiceName == null) {
+		if (mServiceName == null || mServiceName.isEmpty()) {
 			notifyPortforwardingStatus(STATUS_SERVICE_NULL);
 			return;
 		}
@@ -161,7 +168,6 @@ class PfdServer extends AbstractStreamHandler implements SessionRequestCompleteH
 				mSession = PfdAgent.singleton().getSessionManager()
 							.newSession(mFriendInfo.getUserId(), TransportType.TCP);
 				mStream  = mSession.addStream(StreamType.Application, sopt, this);
-				//session.request(this);
 			}
 			catch (WhisperException e) {
 				e.printStackTrace();
@@ -200,7 +206,7 @@ class PfdServer extends AbstractStreamHandler implements SessionRequestCompleteH
 
 	public void close() {
 		if (mSession != null) {
-			mSession.close();
+			//mSession.close();
 			mSession = null;
 			mStream = null;
 			mPfId = -1;

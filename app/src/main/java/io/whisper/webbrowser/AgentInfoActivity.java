@@ -24,7 +24,6 @@ public class AgentInfoActivity extends AppCompatActivity {
 	private TextView mDescView;
 	private Button   mLogoutButton;
 
-
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);

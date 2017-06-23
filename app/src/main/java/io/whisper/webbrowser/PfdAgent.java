@@ -154,12 +154,8 @@ public class PfdAgent extends AbstractWhisperHandler {
 
 	public void kill() {
 
-		if (mCheckedServer != null) {
-			SharedPreferences preferences = mContext.getSharedPreferences("whisper", Context.MODE_PRIVATE);
-			SharedPreferences.Editor editor = preferences.edit();
-			editor.putString("checkedServerId", mCheckedServer.getServerId());
-			editor.commit();
-		}
+		if (mCheckedServer != null)
+			storeSelectedServer();
 
 		mServerMap.clear();
 		mServerList.clear();
@@ -175,15 +171,31 @@ public class PfdAgent extends AbstractWhisperHandler {
 		return mSessionManager;
 	}
 
+	private void storeSelectedServer() {
+		SharedPreferences preferences = mContext.getSharedPreferences("whisper", Context.MODE_PRIVATE);
+		SharedPreferences.Editor editor = preferences.edit();
+		editor.putString("checkedServerId", mCheckedServer.getServerId());
+		editor.commit();
+	}
+
+	private void clearCheckedServer() {
+		SharedPreferences preferences = mContext.getSharedPreferences("whisper", Context.MODE_PRIVATE);
+		SharedPreferences.Editor edit = preferences.edit();
+		edit.remove("checkedServerId");
+		edit.commit();
+	}
+
 	public void setCheckedServer(String serverId) {
 		PfdServer server = mServerMap.get(serverId);
 
 		if (server != null) {
+			Log.i(TAG, "Checked server changed to " + serverId);
 			mCheckedServer = server;
-		}
+			storeSelectedServer();
 
-		if (mStatus == ConnectionStatus.Connected)
-			notifyAgentStatus(AGENT_READY);
+			if (mStatus == ConnectionStatus.Connected)
+				notifyAgentStatus(AGENT_READY);
+		}
 	}
 
 	public PfdServer getCheckedServer() {
@@ -262,6 +274,7 @@ public class PfdAgent extends AbstractWhisperHandler {
 
 		if (mCheckedServer == null) {
 			mCheckedServer = mServerList.get(0);
+			storeSelectedServer();
 		}
 
 		mReady = true;
@@ -332,6 +345,7 @@ public class PfdAgent extends AbstractWhisperHandler {
 
 		if (mCheckedServer == null) {
 			mCheckedServer = server;
+			storeSelectedServer();
 			notifyAgentStatus(AGENT_READY);
 		}
 
@@ -348,6 +362,8 @@ public class PfdAgent extends AbstractWhisperHandler {
 
 		if (mCheckedServer.equals(server)) {
 			mCheckedServer = null;
+			clearCheckedServer();
+
 			notifyAgentStatus(AGENT_READY);
 		}
 

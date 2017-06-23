@@ -38,6 +38,7 @@ public class AgentLoginActivity extends AppCompatActivity {
 		SharedPreferences preferences = getSharedPreferences("whisper", Context.MODE_PRIVATE);
 		if (preferences.getBoolean("hasLogin", false)) {
 			startActivity(new Intent(this, WebBrowserActivity.class));
+			finish();
 			return;
 		}
 
@@ -62,8 +63,6 @@ public class AgentLoginActivity extends AppCompatActivity {
 			}
 		});
 
-		//mLoginFormView = findViewById(R.id.login_form);
-		//mProgressView = findViewById(R.id.login_progress);
 	}
 
 	private void attemptLogin() {
@@ -136,6 +135,7 @@ public class AgentLoginActivity extends AppCompatActivity {
 				editor.commit();
 
 				startActivity(new Intent(AgentLoginActivity.this, WebBrowserActivity.class));
+				finish();
 			}
 			else {
 				Toast.makeText(AgentLoginActivity.this, "用户名或密码错误", Toast.LENGTH_SHORT).show();
