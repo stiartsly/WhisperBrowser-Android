@@ -102,6 +102,46 @@
             android:background="@color/listDividerBackground" />
 
         <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp"
+            android:gravity="center_vertical"
+            android:textColor="@color/deviceDetailTextColor"
+            android:textSize="@dimen/section_header_text_size"
+            android:text="协议" />
+
+        <Spinner
+            android:id="@+id/server_service_proto"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginRight="16dp"
+            android:layout_alignParentRight="true"
+            android:entries="@array/proto_arrays"
+            android:prompt="@string/proto_prompt"/>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_alignParentBottom="true"
+            android:background="@color/listDividerBackground"
+            android:textColor="@color/deviceDetailTextColor"
+            android:textSize="@dimen/section_header_text_size"/>
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:background="@android:color/white">
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/listDividerBackground" />
+
+        <TextView
             android:id="@+id/server_service_label"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -122,6 +162,7 @@
             android:gravity="center_vertical"
             android:textColor="@color/deviceDetailTextColor"
             android:textSize="@dimen/section_header_text_size"
+            android:inputType="text"
             android:cursorVisible="false"
             android:background="@null"/>
 

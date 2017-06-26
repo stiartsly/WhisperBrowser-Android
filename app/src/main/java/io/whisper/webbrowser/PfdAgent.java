@@ -179,9 +179,7 @@ public class PfdAgent extends AbstractWhisperHandler {
 	}
 
 	public void kill() {
-
-		if (mCheckedServer != null)
-			storeSelectedServer();
+		savePreferences();
 
 		mServerMap.clear();
 		mServerList.clear();
@@ -198,17 +196,36 @@ public class PfdAgent extends AbstractWhisperHandler {
 		return mSessionManager;
 	}
 
-	private void storeSelectedServer() {
+	private void loadPreferences() {
 		SharedPreferences preferences = mContext.getSharedPreferences("whisper", Context.MODE_PRIVATE);
-		SharedPreferences.Editor editor = preferences.edit();
-		editor.putString("checkedServerId", mCheckedServer.getServerId());
-		editor.commit();
+		String serverId = preferences.getString("checkedServerId", null);
+		if (serverId != null) {
+			PfdServer server = mServerMap.get(serverId);
+			if (server != null)
+				mCheckedServer = server;
+		}
 	}
 
-	private void clearCheckedServer() {
+	private void savePreferences() {
+		if (mCheckedServer != null) {
+			SharedPreferences preferences = mContext.getSharedPreferences("whisper", Context.MODE_PRIVATE);
+			SharedPreferences.Editor editor = preferences.edit();
+
+			editor.putString("checkedServerId", mCheckedServer.getServerId());
+			editor.commit();
+		}
+	}
+
+	private void updatePreference() {
 		SharedPreferences preferences = mContext.getSharedPreferences("whisper", Context.MODE_PRIVATE);
 		SharedPreferences.Editor edit = preferences.edit();
-		edit.remove("checkedServerId");
+
+
+		if (mCheckedServer == null)
+			edit.remove("checkedServerId");
+		else
+			edit.putString("checkedServerId", mCheckedServer.getServerId());
+
 		edit.commit();
 	}
 
@@ -218,7 +235,7 @@ public class PfdAgent extends AbstractWhisperHandler {
 		if (server != null) {
 			Log.i(TAG, "Checked server changed to " + serverId);
 			mCheckedServer = server;
-			storeSelectedServer();
+			savePreferences();
 
 			if (mStatus == ConnectionStatus.Connected)
 				notifyAgentStatus(AGENT_READY);
@@ -291,17 +308,16 @@ public class PfdAgent extends AbstractWhisperHandler {
 
 		Log.i(TAG, "Whisper instance is ready.");
 
-		SharedPreferences preferences = mContext.getSharedPreferences("whisper", Context.MODE_PRIVATE);
-		String serverId = preferences.getString("checkedServerId", null);
-		if (serverId != null) {
-			PfdServer server = mServerMap.get(serverId);
-			if (server != null)
-				mCheckedServer = server;
-		}
+		loadPreferences();
 
 		if (mCheckedServer == null) {
-			mCheckedServer = mServerList.get(0);
-			storeSelectedServer();
+			for (PfdServer server: mServerList) {
+				if (server.isOnline()) {
+					mCheckedServer = server;
+					savePreferences();
+					break;
+				}
+			}
 		}
 
 		mReady = true;
@@ -314,8 +330,6 @@ public class PfdAgent extends AbstractWhisperHandler {
 
 		for (FriendInfo info: friends) {
 			String serverId = info.getUserId();
-			boolean online  = false;
-			boolean needAdd = false;
 			PfdServer server;
 
 			server = mServerMap.get(serverId);
@@ -372,7 +386,7 @@ public class PfdAgent extends AbstractWhisperHandler {
 
 		if (mCheckedServer == null) {
 			mCheckedServer = server;
-			storeSelectedServer();
+			savePreferences();
 			notifyAgentStatus(AGENT_READY);
 		}
 
@@ -387,9 +401,16 @@ public class PfdAgent extends AbstractWhisperHandler {
 		mServerList.remove(server);
 		Log.i(TAG, "Portforwarding server " + friendId + "removed");
 
+		server.clearPreferences();
+
 		if (mCheckedServer.equals(server)) {
 			mCheckedServer = null;
-			clearCheckedServer();
+			for (PfdServer svr: mServerList) {
+				if (svr.isOnline())
+					mCheckedServer = svr;
+			}
+
+			updatePreference();
 
 			notifyAgentStatus(AGENT_READY);
 		}

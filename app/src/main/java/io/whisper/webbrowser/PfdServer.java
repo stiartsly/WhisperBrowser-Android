@@ -4,7 +4,9 @@ import io.whisper.core.FriendInfo;
 import io.whisper.session.*;
 import io.whisper.exceptions.WhisperException;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.util.Log;
 import java.net.ServerSocket;
 
@@ -19,14 +21,16 @@ class PfdServer extends AbstractStreamHandler implements SessionRequestCompleteH
 	private String  mPort;
 	private int mPfId;
 	private Stream mStream;
-	private String mSdp;
+	private StreamState mState = StreamState.Closed;
 
-	private String mServiceName = "web";
+	private String mServiceName = "apache";
+	private TransportType mTransport = TransportType.TCP;
 
 	private static final int STATUS_READY   = 0;
-	private static final int STATUS_OFFLINE = 1;
-	private static final int STATUS_SERVICE_NULL = 2;
-	private static final int STATUS_SESSION_REFUSED = 3;
+	private static final int STATUS_INPROGRESS = 1;
+	private static final int STATUS_OFFLINE = 2;
+	private static final int STATUS_SERVICE_NULL = 3;
+	private static final int STATUS_SESSION_REFUSED = 4;
 
 	PfdServer() {}
 
@@ -50,10 +54,29 @@ class PfdServer extends AbstractStreamHandler implements SessionRequestCompleteH
 
 	public void setServiceName(String serviceName) {
 		mServiceName = serviceName;
+		savePreferences();
+	}
+
+	public int getTransport() {
+		switch(mTransport) {
+			case ICE:
+				return 0;
+			case UDP:
+				return 1;
+			case TCP:
+				return 2;
+		}
+		return 0;
+	}
+
+	public void setTransport(int transport) {
+		mTransport = TransportType.valueOf(1 << transport);
+		savePreferences();
 	}
 
 	public void setInfo(FriendInfo friendInfo) {
 		mFriendInfo = friendInfo;
+		loadPreferences();
 	}
 
 	public void setOnline(boolean online) {
@@ -75,17 +98,46 @@ class PfdServer extends AbstractStreamHandler implements SessionRequestCompleteH
 		}
 
 		try {
-			mSession.start(sdp);
-			Log.i(TAG, "Session started ---> success");
+			session.start(sdp);
+			Log.i(TAG, "Session started success.");
 		} catch (WhisperException e) {
 			Log.e(TAG, "Session start error " + e.getErrorCode());
 		}
+	}
 
-		mSdp = sdp;
+	private void savePreferences() {
+		SharedPreferences preferences = WebBrowserApp.getAppContext()
+									.getSharedPreferences("whisper", Context.MODE_PRIVATE);
+		SharedPreferences.Editor editor = preferences.edit();
+		editor.putString(getServerId() + ":service", mServiceName);
+		editor.putInt(getServerId() + ":transport", mTransport.value());
+		editor.commit();
+	}
+
+	private void loadPreferences() {
+		SharedPreferences preferences = WebBrowserApp.getAppContext()
+									.getSharedPreferences("whisper", Context.MODE_PRIVATE);
+		String serviceName = preferences.getString(getServerId() + ":service", null);
+		if (serviceName != null)
+			mServiceName = serviceName;
+
+		int transport = preferences.getInt(getServerId() + ":transport", -1);
+		if (transport != -1)
+			mTransport = TransportType.valueOf(transport);
+	}
+
+	public void clearPreferences() {
+		SharedPreferences preferences = WebBrowserApp.getAppContext()
+									.getSharedPreferences("whisper", Context.MODE_PRIVATE);
+		SharedPreferences.Editor editor = preferences.edit();
+		editor.remove(getServerId() + ":service");
+		editor.remove(getServerId() + ":transport");
+		editor.commit();
 	}
 
 	@Override
 	public void onStateChanged(Stream stream, StreamState state) {
+		mState = state;
 		try {
 			switch (state) {
 				case Initialized:
@@ -99,6 +151,7 @@ class PfdServer extends AbstractStreamHandler implements SessionRequestCompleteH
 
 				case Connected:
 					Log.i(TAG, "Stream to " + getServerId() + " connected.");
+					mStream = stream;
 					openPortforwarding();
 					notifyPortforwardingStatus(STATUS_READY);
 					break;
@@ -118,6 +171,7 @@ class PfdServer extends AbstractStreamHandler implements SessionRequestCompleteH
 			}
 		} catch (WhisperException e) {
 			Log.e(TAG, String.format("Stream error (0x%x)", e.getErrorCode()));
+			close();
 			notifyPortforwardingStatus(e.getErrorCode());
 		}
 	}
@@ -148,26 +202,35 @@ class PfdServer extends AbstractStreamHandler implements SessionRequestCompleteH
 			return;
 		}
 
-		if (mSession != null) {
+		if (mState == StreamState.Initialized || mState == StreamState.TransportReady
+			|| mState == StreamState.Connecting) {
+			notifyPortforwardingStatus(STATUS_INPROGRESS);
+			return;
+		}
+		else if (mState == StreamState.Connected) {
 			try {
 				openPortforwarding();
-			}
-			catch (WhisperException e) {
+			} catch (WhisperException e) {
 				e.printStackTrace();
 
-				Log.i(TAG, "Portforwarding to " + getServerId() + ":" + mServiceName + " opened error");
+				Log.e(TAG, "Portforwarding to " + getServerId() + ":" + mServiceName + " opened error.");
 				notifyPortforwardingStatus(e.getErrorCode());
 			}
 			return;
 		}
 		else {
+			mState = StreamState.Closed;
+
 			int sopt = Stream.PROPERTY_ENCRYPT | Stream.PROPERTY_MULTIPLEXING |
 				       Stream.PROPERTY_PORT_FORWARDING;
 
+			if (mTransport == TransportType.ICE)
+				sopt |= Stream.PROPERTY_RELIABLE;
+
 			try {
 				mSession = PfdAgent.singleton().getSessionManager()
-							.newSession(mFriendInfo.getUserId(), TransportType.TCP);
-				mStream  = mSession.addStream(StreamType.Application, sopt, this);
+							.newSession(mFriendInfo.getUserId(), mTransport);
+				mSession.addStream(StreamType.Application, sopt, this);
 			}
 			catch (WhisperException e) {
 				e.printStackTrace();
@@ -178,6 +241,8 @@ class PfdServer extends AbstractStreamHandler implements SessionRequestCompleteH
 				}
 				else {
 					Log.e(TAG, String.format("Add stream error (0x%x)", e.getErrorCode()));
+					mSession.close();
+					mSession = null;
 				}
 				notifyPortforwardingStatus(e.getErrorCode());
 			}
@@ -186,14 +251,14 @@ class PfdServer extends AbstractStreamHandler implements SessionRequestCompleteH
 
 	private void openPortforwarding() throws WhisperException {
 		if (mPfId > 0) {
-			Log.i(TAG, "Portforwarding to " + getServerId() + ":" + mServiceName + " already opened.");
+			Log.i(TAG, "Portforwarding to " + getName() + ":" + mServiceName + " already opened.");
 		}
 		else {
 			mPort = String.valueOf(findFreePort());
 			mPfId = mStream.openPortFowarding(mServiceName, PortForwardingProtocol.TCP,
 											"127.0.0.1", mPort);
 
-			Log.i(TAG, "Portforwarding to " + getServerId() + ":" + mServiceName + " opened.");
+			Log.i(TAG, "Portforwarding to " + getName() + ":" + mServiceName + " opened.");
 		}
 	}
 
@@ -209,6 +274,7 @@ class PfdServer extends AbstractStreamHandler implements SessionRequestCompleteH
 			//mSession.close();
 			mSession = null;
 			mStream = null;
+			mState  = StreamState.Closed;
 			mPfId = -1;
 		}
 	}

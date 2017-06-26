@@ -8,8 +8,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.graphics.drawable.Drawable;
-import android.graphics.drawable.DrawableWrapper;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -174,10 +172,7 @@ public class ServerListActivity extends AppCompatActivity {
 						SharedPreferences.Editor editor = preferences.edit();
 						editor.putString("serverId", holder.mServer.getServerId());
 						editor.commit();
-
-						Context context = v.getContext();
-						Intent intent = new Intent(context, WebBrowserActivity.class);
-						context.startActivity(intent);
+						finish();
 					}
 				}
 			});

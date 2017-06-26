@@ -15,4 +15,11 @@
     <string name="error_incorrect_password">用户名或密码错误</string>
     <string name="error_field_required">该项必须填充</string>
     <string name="title_activity_my_info">MyInfoActivity</string>
+
+    <string name="proto_prompt">请选择协议</string>
+    <string-array name="proto_arrays">
+        <item>ICE</item>
+        <item>UDP</item>
+        <item>TCP</item>
+    </string-array>
 </resources>

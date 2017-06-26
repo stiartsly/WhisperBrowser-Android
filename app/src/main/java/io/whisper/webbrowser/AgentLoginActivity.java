@@ -118,7 +118,8 @@ public class AgentLoginActivity extends AppCompatActivity {
 				 PfdAgent.singleton().checkLogin(mLogin, mPassword);
 			}
 			catch (WhisperException e) {
-				Log.e(TAG, "Login invalid");
+				e.printStackTrace();
+				Log.e(TAG, String.format("Login failed (0x%x).", e.getErrorCode()));
 				return false;
 			}
 			return true;

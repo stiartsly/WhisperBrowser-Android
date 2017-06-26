@@ -1,14 +1,21 @@
 package io.whisper.webbrowser;
 
+import android.util.Log;
 import android.content.DialogInterface;
 import android.support.v7.app.AlertDialog;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.KeyEvent;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
+import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.AdapterView.OnItemSelectedListener;
 
 import io.whisper.exceptions.WhisperException;
 
@@ -19,6 +26,8 @@ public class ServerInfoActivity extends AppCompatActivity {
 	private TextView mServerIdView;
 	private TextView mNameView;
 	private TextView mServiceView;
+
+	private Spinner  mProtoSpinner;
 
 	private Button mDeletionButton;
 
@@ -37,20 +46,38 @@ public class ServerInfoActivity extends AppCompatActivity {
 
 		mServerIdView = (TextView) findViewById(R.id.server_id_value);
 		mNameView     = (TextView) findViewById(R.id.server_name_value);
-		mServiceView  = (TextView) findViewById(R.id.server_service_value);
+		mServiceView  = (EditText) findViewById(R.id.server_service_value);
 
 		if (mServer != null) {
 			mServerIdView.setText(mServer.getServerId());
 			mNameView    .setText(mServer.getName());
 			mServiceView .setText(mServer.getServiceName());
 
-			mServiceView.setOnClickListener(new View.OnClickListener() {
+			mServiceView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
 				@Override
-				public void onClick(View view) {
-					mServer.setServiceName(((TextView)view).getText().toString());
+				public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
+					if (i == EditorInfo.IME_ACTION_DONE ) {
+						mServer.setServiceName(textView.getText().toString());
+						return true;
+					}
+					return false;
+				}
+			});
+
+			mServiceView.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+				@Override
+				public void onFocusChange(View view, boolean hasFocus) {
+					if (!hasFocus) {
+						Log.i(TAG, "Text: " + ((TextView)view).getText().toString());
+						mServer.setServiceName(((TextView)view).getText().toString());
+					}
 				}
 			});
 		}
+
+		mProtoSpinner = (Spinner) findViewById(R.id.server_service_proto);
+		mProtoSpinner.setOnItemSelectedListener(new CustomOnItemSelectedListener());
+		mProtoSpinner.setSelection(mServer.getTransport());
 
 		mDeletionButton = (Button)findViewById(R.id.server_deletion);
 		mDeletionButton.setOnClickListener(new View.OnClickListener() {
@@ -60,6 +87,18 @@ public class ServerInfoActivity extends AppCompatActivity {
 			}
 		});
 
+	}
+
+	private class CustomOnItemSelectedListener implements OnItemSelectedListener {
+
+		public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+			mServer.setTransport(pos);
+		}
+
+		@Override
+		public void onNothingSelected(AdapterView<?> arg0) {
+			// TODO Auto-generated method stub
+		}
 	}
 
 	private void removeServer() {
