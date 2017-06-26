@@ -78,7 +78,7 @@ class PfdServer extends AbstractStreamHandler implements SessionRequestCompleteH
 			close();
 			mTransport = type;
 			savePreferences();
-			notifyPortforwardingStatus(STATUS_READY);
+			PfdAgent.singleton().notifyAgentStatus(STATUS_READY);
 		}
 	}
 

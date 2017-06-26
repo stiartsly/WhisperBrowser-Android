@@ -151,6 +151,10 @@ public class PfdAgent extends AbstractWhisperHandler {
 		Log.i(TAG, "Agent session manager created successfully");
 	}
 
+	public boolean isReady() {
+		return mReady;
+	}
+
 	public void start() {
 		try {
 			if (mWhisper == null) {
@@ -304,6 +308,8 @@ public class PfdAgent extends AbstractWhisperHandler {
 		} catch (WhisperException e) {
 			Log.e(TAG, String.format("Update current user name error (0x%x)", e.getErrorCode()));
 			e.printStackTrace();
+			notifyAgentStatus(-1);
+			return;
 		}
 
 		Log.i(TAG, "Whisper instance is ready.");

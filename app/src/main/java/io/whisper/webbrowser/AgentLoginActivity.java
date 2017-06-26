@@ -136,10 +136,9 @@ public class AgentLoginActivity extends AppCompatActivity {
 				editor.putString("login", mLogin);
 				editor.putString("password", mPassword);
 				editor.commit();
-
-				PfdAgent.singleton().start();
-
+				
 				startActivity(new Intent(AgentLoginActivity.this, WebBrowserActivity.class));
+				PfdAgent.singleton().start();
 				finish();
 			}
 			else {

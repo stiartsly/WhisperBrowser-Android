@@ -50,6 +50,18 @@ public class WebBrowserActivity extends AppCompatActivity  {
 		filter.addAction(PfdAgent.ACTION_AGENT_STATUS_CHANGED);
 		filter.addAction(PfdServer.ACTION_SERVER_STATUS_CHANGED);
 		registerReceiver(broadcastReceiver, filter);
+
+		Log.i(TAG, "Registered broadcast");
+
+		if (PfdAgent.singleton().isReady()) {
+			PfdServer server = PfdAgent.singleton().getCheckedServer();
+			if (server != null) {
+				server.setupPortforwarding();
+			}
+			else {
+				showFailure("No server available");
+			}
+		}
 	}
 
 	@Override
