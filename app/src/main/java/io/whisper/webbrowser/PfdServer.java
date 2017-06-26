@@ -25,6 +25,7 @@ class PfdServer extends AbstractStreamHandler implements SessionRequestCompleteH
 
 	private String mServiceName = "apache";
 	private TransportType mTransport = TransportType.TCP;
+	private boolean mNeedClosePortforwarding = false;
 
 	private static final int STATUS_READY   = 0;
 	private static final int STATUS_INPROGRESS = 1;
@@ -53,8 +54,10 @@ class PfdServer extends AbstractStreamHandler implements SessionRequestCompleteH
 	}
 
 	public void setServiceName(String serviceName) {
+		mNeedClosePortforwarding = true;
 		mServiceName = serviceName;
 		savePreferences();
+		PfdAgent.singleton().notifyAgentStatus(STATUS_READY);
 	}
 
 	public int getTransport() {
@@ -210,6 +213,7 @@ class PfdServer extends AbstractStreamHandler implements SessionRequestCompleteH
 		else if (mState == StreamState.Connected) {
 			try {
 				openPortforwarding();
+				notifyPortforwardingStatus(STATUS_READY);
 			} catch (WhisperException e) {
 				e.printStackTrace();
 
@@ -250,10 +254,15 @@ class PfdServer extends AbstractStreamHandler implements SessionRequestCompleteH
 	}
 
 	private void openPortforwarding() throws WhisperException {
-		if (mPfId > 0) {
+		if (mPfId > 0 && !mNeedClosePortforwarding) {
 			Log.i(TAG, "Portforwarding to " + getName() + ":" + mServiceName + " already opened.");
 		}
 		else {
+			if (mPfId > 0) {
+				mStream.closePortForwarding(mPfId);
+				mPfId = -1;
+			}
+
 			mPort = String.valueOf(findFreePort());
 			mPfId = mStream.openPortFowarding(mServiceName, PortForwardingProtocol.TCP,
 											"127.0.0.1", mPort);
@@ -271,7 +280,7 @@ class PfdServer extends AbstractStreamHandler implements SessionRequestCompleteH
 
 	public void close() {
 		if (mSession != null) {
-			//mSession.close();
+			mSession.close();
 			mSession = null;
 			mStream = null;
 			mState  = StreamState.Closed;
