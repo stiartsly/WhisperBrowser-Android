@@ -73,8 +73,13 @@ class PfdServer extends AbstractStreamHandler implements SessionRequestCompleteH
 	}
 
 	public void setTransport(int transport) {
-		mTransport = TransportType.valueOf(1 << transport);
-		savePreferences();
+		TransportType type = TransportType.valueOf(1 << transport);
+		if (type != mTransport) {
+			close();
+			mTransport = type;
+			savePreferences();
+			notifyPortforwardingStatus(STATUS_READY);
+		}
 	}
 
 	public void setInfo(FriendInfo friendInfo) {

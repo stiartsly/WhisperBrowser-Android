@@ -428,7 +428,7 @@ public class PfdAgent extends AbstractWhisperHandler {
 		}
 	}
 
-	private void notifyAgentStatus(int status) {
+	public void notifyAgentStatus(int status) {
 		notifyAgentStatus(status, false);
 	}
 
