@@ -11,14 +11,20 @@ import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.ImageButton;
 
-public class WebBrowserActivity extends AppCompatActivity  {
+public class WebBrowserActivity extends AppCompatActivity implements View.OnClickListener {
 	private static final String TAG = "WebBrowserActivity";
 
 	private WebView mWebView;
+	private ImageButton mBackButton;
+	private ImageButton mForwardButton;
+	private ImageButton mHomeButton;
+	private ImageButton mReloadButton;
 
 	private void loadUrl(String url) {
 		Log.i(TAG, "Loading url " + url + " ...");
@@ -40,11 +46,29 @@ public class WebBrowserActivity extends AppCompatActivity  {
 		setSupportActionBar(toolbar);
 
 		mWebView = (WebView) findViewById(R.id.webview);
-		mWebView.setWebViewClient(new WebViewClient());
+		mWebView.setWebViewClient(new WebViewClient(){
+			@Override
+			public void onPageFinished(WebView view, String url) {
+				super.onPageFinished(view, url);
+				mBackButton.setEnabled(view.canGoBack());
+				mForwardButton.setEnabled(view.canGoForward());
+			}
+		});
 
 		WebSettings settings = mWebView.getSettings();
 		settings.setJavaScriptEnabled(true);
 		settings.setDomStorageEnabled(true);
+
+		mBackButton = (ImageButton) findViewById(R.id.button_back);
+		mBackButton.setEnabled(false);
+		mBackButton.setOnClickListener(this);
+		mForwardButton = (ImageButton) findViewById(R.id.button_forward);
+		mForwardButton.setEnabled(false);
+		mForwardButton.setOnClickListener(this);
+		mHomeButton = (ImageButton) findViewById(R.id.button_home);
+		mHomeButton.setOnClickListener(this);
+		mReloadButton = (ImageButton) findViewById(R.id.button_reload);
+		mReloadButton.setOnClickListener(this);
 
 		IntentFilter filter = new IntentFilter();
 		filter.addAction(PfdAgent.ACTION_AGENT_STATUS_CHANGED);
@@ -120,8 +144,6 @@ public class WebBrowserActivity extends AppCompatActivity  {
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.menu_myinfo, menu);
-		getMenuInflater().inflate(R.menu.menu_home, menu);
-		getMenuInflater().inflate(R.menu.menu_reload, menu);
 		getMenuInflater().inflate(R.menu.menu_list_server, menu);
 		return true;
 	}
@@ -133,13 +155,6 @@ public class WebBrowserActivity extends AppCompatActivity  {
 		if (id == R.id.action_list_server) {
 			startActivity(new Intent(this, ServerListActivity.class));
 		}
-		else if (id == R.id.action_home_page) {
-			String port = PfdAgent.singleton().getCheckedServer().getPort();
-			loadUrl("http://127.0.0.1:" + port);
-		}
-		else if (id == R.id.action_reload) {
-			mWebView.reload();
-		}
 		else if (id == R.id.action_myinfo) {
 			startActivity(new Intent(WebBrowserActivity.this, AgentInfoActivity.class));
 		}
@@ -148,5 +163,23 @@ public class WebBrowserActivity extends AppCompatActivity  {
 		}
 
 		return true;
+	}
+
+
+	@Override
+	public void onClick(View v) {
+		if (v == mBackButton) {
+			mWebView.goBack();
+		}
+		else if (v == mForwardButton) {
+			mWebView.goForward();
+		}
+		else if (v == mHomeButton) {
+			String port = PfdAgent.singleton().getCheckedServer().getPort();
+			loadUrl("http://127.0.0.1:" + port);
+		}
+		else if (v == mReloadButton) {
+			mWebView.reload();
+		}
 	}
 }

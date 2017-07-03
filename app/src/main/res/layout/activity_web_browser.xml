@@ -29,7 +29,55 @@
              android:layout_width="match_parent"
              android:layout_height="match_parent"
              android:layout_marginTop="8dp"
+             android:layout_above="@+id/button_bar"
              app:layout_constraintTop_toTopOf="parent"
              tools:layout_editor_absoluteX="8dp"/>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_alignTop="@+id/button_bar"
+        android:background="@color/listDividerBackground" />
+
+    <LinearLayout
+        android:id="@+id/button_bar"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_alignParentBottom="true"
+        android:orientation="horizontal" >
+
+        <io.whisper.webbrowser.CustomImageButton
+            android:id="@+id/button_back"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="#00000000"
+            android:src="@mipmap/ic_back"/>
+
+        <io.whisper.webbrowser.CustomImageButton
+            android:id="@+id/button_forward"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="#00000000"
+            android:src="@mipmap/ic_forward"/>
+
+        <io.whisper.webbrowser.CustomImageButton
+            android:id="@+id/button_home"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="#00000000"
+            android:src="@mipmap/ic_home"/>
+
+        <io.whisper.webbrowser.CustomImageButton
+            android:id="@+id/button_reload"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="#00000000"
+            android:src="@mipmap/ic_reload"/>
+
+    </LinearLayout>
 
 </RelativeLayout>

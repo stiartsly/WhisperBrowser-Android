@@ -23,8 +23,8 @@ class PfdServer extends AbstractStreamHandler implements SessionRequestCompleteH
 	private Stream mStream;
 	private StreamState mState = StreamState.Closed;
 
-	private String mServiceName = "apache";
-	private TransportType mTransport = TransportType.TCP;
+	private String mServiceName = Constant.defaultServiceName;
+	private TransportType mTransport = Constant.defaultTransportType;
 	private boolean mNeedClosePortforwarding = false;
 
 	private static final int STATUS_READY   = 0;

@@ -28,16 +28,6 @@ public class PfdAgent extends AbstractWhisperHandler {
 	public static final String ACTION_SERVER_INFO_CHANGED  = "ACTION_SERVER_INFO_CHANGED";
 	public static final String ACTION_AGENT_STATUS_CHANGED = "ACTION_AGENT_STATUS_CHANGED";
 
-	private static final String mAppId  = "7sRQjDsniyuHdZ9zsQU9DZbMLtQGLBWZ78yHWgjPpTKm";
-	private static final String mAppKey = "6tzPPAgSACJdScX79wuzMNPQTWkRLZ4qEdhLcZU6q4B9";
-	private static final String mApiServerUrl  = "https://whisper.freeddns.org:8443/web/api";
-	private static final String mMqttServerUri = "ssl://whisper.freeddns.org:8883";
-
-	private static final String mStunHost = "whisper.freeddns.org";
-	private static final String mTurnHost  = "whisper.freeddns.org";
-	private static final String mTurnUsername  = "whisper";
-	private static final String mTurnPassword = "io2016whisper";
-
 	public static PfdAgent pfdAgentInst;
 
 	private Context mContext;
@@ -123,12 +113,12 @@ public class PfdAgent extends AbstractWhisperHandler {
 		loadCertFile();
 
 		Whisper.Options wopt = new Whisper.Options();
-		wopt.setAppId(mAppId)
-			.setAppKey(mAppKey)
+		wopt.setAppId(Constant.AppId)
+			.setAppKey(Constant.AppKey)
 			.setLogin(login)
 			.setPassword(password)
-			.setApiServerUrl(mApiServerUrl)
-			.setMqttServerUri(mMqttServerUri)
+			.setApiServerUrl(Constant.ApiServerUrl)
+			.setMqttServerUri(Constant.MqttServerUri)
 			.setTrustStore(getTruestStore())
 			.setPersistentLocation(whisperPath)
 			.setDeviceId(deviceId)
@@ -142,10 +132,10 @@ public class PfdAgent extends AbstractWhisperHandler {
 		sopt.setTransports(Manager.Options.TRANSPORT_ICE |
 				Manager.Options.TRANSPORT_UDP |
 				Manager.Options.TRANSPORT_TCP);
-		sopt.setStunHost(mStunHost);
-		sopt.setTurnHost(mTurnHost);
-		sopt.setTurnUserName(mTurnUsername);
-		sopt.setTurnPassword(mTurnPassword);
+		sopt.setStunHost(Constant.StunHost);
+		sopt.setTurnHost(Constant.TurnHost);
+		sopt.setTurnUserName(Constant.TurnUsername);
+		sopt.setTurnPassword(Constant.TurnPassword);
 
 		mSessionManager = Manager.getInstance(mWhisper, sopt);
 		Log.i(TAG, "Agent session manager created successfully");
@@ -184,6 +174,10 @@ public class PfdAgent extends AbstractWhisperHandler {
 
 	public void kill() {
 		savePreferences();
+
+		for (PfdServer server: mServerList) {
+			server.close();
+		}
 
 		mServerMap.clear();
 		mServerList.clear();

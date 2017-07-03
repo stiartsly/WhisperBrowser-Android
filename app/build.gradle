@@ -5,11 +5,21 @@ android {
     buildToolsVersion "25.0.1"
     defaultConfig {
         applicationId "io.whisper.webbrowser"
-        minSdkVersion 16
+        minSdkVersion 21
         targetSdkVersion 25
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    }
+    productFlavors {
+        internal {
+            applicationIdSuffix ".internal"
+            manifestPlaceholders = [app_name: "@string/app_name"]
+        }
+        fh {
+            applicationIdSuffix ".fh"
+            manifestPlaceholders = [app_name: "FHBrowser"]
+        }
     }
     buildTypes {
         release {
