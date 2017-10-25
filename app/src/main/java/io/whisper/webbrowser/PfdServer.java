@@ -230,7 +230,7 @@ class PfdServer extends AbstractStreamHandler implements SessionRequestCompleteH
 		else {
 			mState = StreamState.Closed;
 
-			int sopt = Stream.PROPERTY_ENCRYPT | Stream.PROPERTY_MULTIPLEXING |
+			int sopt = Stream.PROPERTY_MULTIPLEXING |
 				       Stream.PROPERTY_PORT_FORWARDING;
 
 			if (mTransport == TransportType.ICE)
