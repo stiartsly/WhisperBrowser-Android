@@ -74,9 +74,9 @@ public class AddServerActivity extends AppCompatActivity
 		return super.onSupportNavigateUp();
 	}
 
-	private void addPfServer(String serverId) {
+	private void addPfServer(String serverAddress) {
 		try {
-			PfdAgent.singleton().pairServer(serverId);
+			PfdAgent.singleton().pairServer(serverAddress);
 			Toast.makeText(this, "授权申请已发送", Toast.LENGTH_SHORT).show();
 			finish();
 		} catch (WhisperException e) {

@@ -22,6 +22,8 @@ class PfdServer extends AbstractStreamHandler implements SessionRequestCompleteH
 	private int mPfId;
 	private Stream mStream;
 	private StreamState mState = StreamState.Closed;
+	private boolean didReceivedConfirmResponse = false;
+	private String sdp = null;
 
 	private String mServiceName = Constant.defaultServiceName;
 	private TransportType mTransport = Constant.defaultTransportType;
@@ -105,12 +107,8 @@ class PfdServer extends AbstractStreamHandler implements SessionRequestCompleteH
 			return;
 		}
 
-		try {
-			session.start(sdp);
-			Log.i(TAG, "Session started success.");
-		} catch (WhisperException e) {
-			Log.e(TAG, "Session start error " + e.getErrorCode());
-		}
+		didReceivedConfirmResponse = true;
+		this.sdp = sdp;
 	}
 
 	private void savePreferences() {
@@ -155,6 +153,15 @@ class PfdServer extends AbstractStreamHandler implements SessionRequestCompleteH
 
 				case TransportReady:
 					Log.i(TAG, "Stream to " + getServerId() + " transport ready");
+					try {
+						while (!didReceivedConfirmResponse)
+							Thread.sleep(100);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+
+					mSession.start(sdp);
+					Log.i(TAG, "Session started success.");
 					break;
 
 				case Connected:
@@ -233,12 +240,41 @@ class PfdServer extends AbstractStreamHandler implements SessionRequestCompleteH
 			int sopt = Stream.PROPERTY_MULTIPLEXING |
 				       Stream.PROPERTY_PORT_FORWARDING;
 
-			if (mTransport == TransportType.ICE)
-				sopt |= Stream.PROPERTY_RELIABLE;
-
 			try {
-				mSession = PfdAgent.singleton().getSessionManager()
-							.newSession(mFriendInfo.getUserId(), mTransport);
+
+				TransportOptions options = null;
+
+				switch (mTransport) {
+					case ICE: {
+						IceTransportOptions iceOptions = new IceTransportOptions();
+						iceOptions.setStunHost(Constant.StunHost)
+							.setTurnHost(Constant.TurnHost)
+							.setTurnUserName(Constant.TurnUsername)
+							.setTurnPassword(Constant.TurnPassword)
+							.setThreadModel(TransportOptions.SHARED_THREAD);
+						options = iceOptions;
+						sopt |= Stream.PROPERTY_RELIABLE;
+						break;
+					}
+					case UDP: {
+						UdpTransportOptions udpOptions = new UdpTransportOptions();
+						udpOptions.setUdpHost("127.0.0.1")
+							.setThreadModel(TransportOptions.SHARED_THREAD);
+						options = udpOptions;
+						sopt |= Stream.PROPERTY_RELIABLE;
+						break;
+					}
+					case TCP: {
+						TcpTransportOptions tcpOptions = new TcpTransportOptions();
+						tcpOptions.setTcpHost("127.0.0.1")
+							.setThreadModel(TransportOptions.SHARED_THREAD);
+						options = tcpOptions;
+						break;
+					}
+				}
+
+				mSession = PfdAgent.singleton().getSessionManager().newSession(
+					mFriendInfo.getUserId(), options);
 				mSession.addStream(StreamType.Application, sopt, this);
 			}
 			catch (WhisperException e) {

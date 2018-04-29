@@ -2,7 +2,11 @@ package io.whisper.webbrowser;
 
 import io.whisper.core.*;
 import io.whisper.exceptions.WhisperException;
+import io.whisper.session.IceTransportOptions;
 import io.whisper.session.Manager;
+import io.whisper.session.TcpTransportOptions;
+import io.whisper.session.TransportOptions;
+import io.whisper.session.UdpTransportOptions;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -103,7 +107,14 @@ public class PfdAgent extends AbstractWhisperHandler {
 	}
 
 	public void checkLogin(String login, String password) throws WhisperException {
-		String deviceId = ((TelephonyManager)mContext.getSystemService(mContext.TELEPHONY_SERVICE)).getDeviceId();
+		String deviceId;
+
+		try {
+			deviceId = ((TelephonyManager) mContext.getSystemService(mContext.TELEPHONY_SERVICE)).getDeviceId();
+		} catch (SecurityException e) {
+			e.printStackTrace();
+			return;
+		}
 		String whisperPath = mContext.getFilesDir().getAbsolutePath() + "/whisper";
 		File whisperDir = new File(whisperPath);
 		if (!whisperDir.exists()) {
@@ -128,16 +139,27 @@ public class PfdAgent extends AbstractWhisperHandler {
 		mWhisper = Whisper.getInstance(wopt, this);
 		Log.i(TAG, "Agent whisper instance created successfully");
 
-		Manager.Options sopt = new Manager.Options();
-		sopt.setTransports(Manager.Options.TRANSPORT_ICE |
-				Manager.Options.TRANSPORT_UDP |
-				Manager.Options.TRANSPORT_TCP);
-		sopt.setStunHost(Constant.StunHost);
-		sopt.setTurnHost(Constant.TurnHost);
-		sopt.setTurnUserName(Constant.TurnUsername);
-		sopt.setTurnPassword(Constant.TurnPassword);
+		mSessionManager = Manager.getInstance(mWhisper);
 
-		mSessionManager = Manager.getInstance(mWhisper, sopt);
+		IceTransportOptions iceOptions = new IceTransportOptions();
+		iceOptions.setStunHost(Constant.StunHost)
+			.setTurnHost(Constant.StunHost)
+			.setTurnUserName(Constant.TurnUsername)
+			.setTurnPassword(Constant.TurnPassword)
+			.setThreadModel(TransportOptions.SHARED_THREAD);
+
+		mSessionManager.addTransport(iceOptions);
+
+		UdpTransportOptions udpOptions = new UdpTransportOptions();
+		udpOptions.setUdpHost("127.0.0.1")
+			.setThreadModel(TransportOptions.SHARED_THREAD);
+		mSessionManager.addTransport(udpOptions);
+
+		TcpTransportOptions tcpOptions = new TcpTransportOptions();
+		tcpOptions.setTcpHost("127.0.0.1")
+			.setThreadModel(TransportOptions.SHARED_THREAD);
+		mSessionManager.addTransport(tcpOptions);
+
 		Log.i(TAG, "Agent session manager created successfully");
 	}
 
@@ -252,11 +274,9 @@ public class PfdAgent extends AbstractWhisperHandler {
 		return mServerMap.get(serverId);
 	}
 
-	public void pairServer(String serverId) throws WhisperException {
-		if (!mWhisper.isFriend(serverId)) {
-			mWhisper.friendRequest(serverId, "WMPFD/2.0/Android");
-			Log.i(TAG, "Friend request to portforwarding server " + serverId + " success");
-		}
+	public void pairServer(String serverAddr) throws WhisperException {
+		mWhisper.addFriend(serverAddr, "WMPFD/2.0/Android");
+		Log.i(TAG, "Friend request to portforwarding server " + serverAddr + " success");
 	}
 
 	public void unpairServer(String serverId) throws WhisperException {
@@ -275,7 +295,6 @@ public class PfdAgent extends AbstractWhisperHandler {
 		Log.i(TAG, "Agent connection status changed to " + status);
 
 		mStatus = status;
-
 		if (mReady && status == ConnectionStatus.Connected)
 			notifyAgentStatus(AGENT_READY);
 	}
@@ -340,7 +359,7 @@ public class PfdAgent extends AbstractWhisperHandler {
 			}
 
 			server.setInfo(info);
-			server.setOnline(info.getPresence().equals("online"));
+			server.setOnline(info.getConnectionStatus() == ConnectionStatus.Connected);
 		}
 
 		notifyServerChanged();
@@ -358,13 +377,13 @@ public class PfdAgent extends AbstractWhisperHandler {
 	}
 
 	@Override
-	public void onFriendPresence(Whisper whsiper, String friendId, String presence) {
+	public void onFriendConnection(Whisper whisper, String friendId, ConnectionStatus status) {
 		PfdServer server = mServerMap.get(friendId);
 		assert(server != null);
 
-		Log.i(TAG, "Server" + friendId + "presence changed to " + presence);
+		Log.i(TAG, "Server" + friendId + "status changed to " + status);
 
-		boolean online = presence.equals("online");
+		boolean online = (status == ConnectionStatus.Connected);
 		server.setOnline(online);
 
 		if (server.equals(mCheckedServer))
