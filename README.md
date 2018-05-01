@@ -1,41 +1,41 @@
 Whisper Browser Run on Android
-===========================
+==============================
 
-Whisper Browser is an application to demonstrate how to use Whisper portofrwarding over whisper netowrk. It show you can Apps on Android/iOS to access Http services inside NAT.
+Whisper Browser is an exemplary app to demonstrate how to use whisper portofrwarding over whisper network. It shows that you can conduct this app to access or browse http service behind the router.
 
 ## Whisper network types
 
-Two types of whisper network would be supprted:
+Two types of whisper network would be supported:
 
-- Managed whisper network
+- Managed whisper network (or centralized whisper network)
 - Decentralzied whisper network
 
 ## Build from source
 
-You should get source code from the following repository on github.com:
+Get source code from github.com with following repository:
 
 ```
 https://github.com/stiartsly/WhisperBrowser-Android.git
 ```
-Then open this android project with Android studio to build it.
+
+Then open this project with Android studio to build distribtion.
 
 ## Build dependencies
 
-Before buiding whisper browser, you have to download and build the following dependencies:
+Before building whisper browser, you have to download and build the dependency **Whisper Android SDK (currently vanilla)**.
 
-- whisper android framework (vanilla)
-
-As to whisper android sdk, you need to get source from
+To get source from following repository:
 
 ```
 https://github.com/stiartsly/whisper-android.git
 ```
-and after building, copy it's ditributions 'io.whisper-debug.aar' to 'app/libs' directory.
 
-## Deploy && Run
+After build, copy it's ditributions **io.whisper-debug.aar** to **app/libs** directory.
 
-Run on android phone with android API-21 or higher.
+## Deployment && Run
+
+Run on Android phone with android **API-21** or higher.
 
 ## License
 
-Whisper Demo project source code files are made available under the MIT License, located in the LICENSE file.
+MIT
