@@ -8,7 +8,7 @@ Whisper Browser is an exemplary app to demonstrate how to use whisper portofrwar
 Two types of whisper network would be supported:
 
 - Managed whisper network (or centralized whisper network)
-- Decentralzied whisper network
+- Decentralized whisper network
 
 ## Build from source
 
@@ -30,7 +30,7 @@ To get source from following repository:
 https://github.com/stiartsly/whisper-android.git
 ```
 
-After build, copy it's ditributions **io.whisper-debug.aar** to **app/libs** directory.
+After build, copy it's ditribution **io.whisper-debug.aar** to **app/libs** directory.
 
 ## Deployment && Run
 
