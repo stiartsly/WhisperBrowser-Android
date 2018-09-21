@@ -1,8 +1,8 @@
 package io.whisper.webbrowser;
 
-import io.whisper.core.FriendInfo;
-import io.whisper.session.*;
-import io.whisper.exceptions.WhisperException;
+import io.whisper.vanilla.FriendInfo;
+import io.whisper.vanilla.session.*;
+import io.whisper.vanilla.exceptions.WhisperException;
 
 import android.content.Context;
 import android.content.Intent;

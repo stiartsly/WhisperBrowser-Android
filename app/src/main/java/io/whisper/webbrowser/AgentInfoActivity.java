@@ -10,8 +10,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
-import io.whisper.core.UserInfo;
-import io.whisper.exceptions.WhisperException;
+import io.whisper.vanilla.UserInfo;
+import io.whisper.vanilla.exceptions.WhisperException;
 
 public class AgentInfoActivity extends AppCompatActivity {
 	private static final String TAG = "AgentInfoActivity";

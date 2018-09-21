@@ -1,6 +1,6 @@
 package io.whisper.webbrowser;
 
-import io.whisper.exceptions.*;
+import io.whisper.vanilla.exceptions.*;
 
 import android.Manifest;
 import android.app.Activity;

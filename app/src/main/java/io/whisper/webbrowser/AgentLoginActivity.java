@@ -20,7 +20,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import io.whisper.exceptions.WhisperException;
+import io.whisper.vanilla.exceptions.WhisperException;
 
 public class AgentLoginActivity extends AppCompatActivity {
 	private static final String TAG = "AgentLoginActivity";

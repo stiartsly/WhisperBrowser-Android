@@ -1,12 +1,12 @@
 package io.whisper.webbrowser;
 
-import io.whisper.core.*;
-import io.whisper.exceptions.WhisperException;
-import io.whisper.session.IceTransportOptions;
-import io.whisper.session.Manager;
-import io.whisper.session.TcpTransportOptions;
-import io.whisper.session.TransportOptions;
-import io.whisper.session.UdpTransportOptions;
+import io.whisper.vanilla.*;
+import io.whisper.vanilla.exceptions.WhisperException;
+import io.whisper.vanilla.session.IceTransportOptions;
+import io.whisper.vanilla.session.Manager;
+import io.whisper.vanilla.session.TcpTransportOptions;
+import io.whisper.vanilla.session.TransportOptions;
+import io.whisper.vanilla.session.UdpTransportOptions;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -60,7 +60,7 @@ public class PfdAgent extends AbstractWhisperHandler {
 		mReady  = false;
 
 		mServerList = new ArrayList<PfdServer>();
-		mServerMap  = new HashMap();
+		mServerMap  = new HashMap<String, PfdServer>();
 	}
 
 	public boolean loadCertFile() {
@@ -110,8 +110,9 @@ public class PfdAgent extends AbstractWhisperHandler {
 		String deviceId;
 
 		try {
-			deviceId = ((TelephonyManager) mContext.getSystemService(mContext.TELEPHONY_SERVICE)).getDeviceId();
-		} catch (SecurityException e) {
+			//deviceId = ((TelephonyManager) mContext.getSystemService(mContext.TELEPHONY_SERVICE)).getDeviceId();
+			deviceId = "whisper-browser-demo-dev";
+		} catch (Exception e) {
 			e.printStackTrace();
 			return;
 		}
@@ -171,6 +172,10 @@ public class PfdAgent extends AbstractWhisperHandler {
 		try {
 			if (mWhisper == null) {
 				checkLogin();
+			}
+
+			if (mWhisper == null) {
+				throw new WhisperException(-1, "Login failed");
 			}
 
 			mWhisper.start(50);
@@ -396,7 +401,7 @@ public class PfdAgent extends AbstractWhisperHandler {
 	public void onFriendAdded(Whisper whisper, FriendInfo friendInfo) {
 		PfdServer server = new PfdServer();
 		server.setInfo(friendInfo);
-		server.setOnline(friendInfo.getPresence().equals("online"));
+		server.setOnline(friendInfo.getConnectionStatus() == ConnectionStatus.Connected);
 
 		mServerList.add(server);
 		mServerMap.put(server.getServerId(), server);
