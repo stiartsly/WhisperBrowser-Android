@@ -1,6 +1,4 @@
-package io.whisper.webbrowser;
-
-import io.whisper.exceptions.*;
+package io.whisper.browser;
 
 import android.Manifest;
 import android.app.Activity;
@@ -22,6 +20,7 @@ import cn.bingoogolapple.qrcode.zxing.ZXingView;
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
 
+import io.whisper.vanilla.exceptions.WhisperException;
 
 public class AddServerActivity extends AppCompatActivity
 		implements EasyPermissions.PermissionCallbacks, QRCodeView.Delegate  {

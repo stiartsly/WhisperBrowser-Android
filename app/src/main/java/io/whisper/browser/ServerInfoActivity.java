@@ -1,4 +1,4 @@
-package io.whisper.webbrowser;
+package io.whisper.browser;
 
 import android.util.Log;
 import android.content.DialogInterface;
@@ -17,7 +17,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.AdapterView.OnItemSelectedListener;
 
-import io.whisper.exceptions.WhisperException;
+import io.whisper.vanilla.exceptions.WhisperException;
 
 public class ServerInfoActivity extends AppCompatActivity {
 	private static final String TAG = "ServerInfoActivity";

@@ -1,12 +1,10 @@
-package io.whisper.webbrowser;
+package io.whisper.browser;
 
 import android.app.Application;
 import android.app.Activity;
 import android.os.Bundle;
 import android.content.Context;
 import android.content.ContentResolver;
-import android.view.Window;
-import android.view.WindowManager;
 
 public class WebBrowserApp extends Application {
 	private static Context mContext;

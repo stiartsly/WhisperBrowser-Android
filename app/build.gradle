@@ -2,22 +2,25 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 25
-    buildToolsVersion "25.0.1"
+    buildToolsVersion '27.0.3'
     defaultConfig {
-        applicationId "io.whisper.webbrowser"
+        applicationId "io.whisper.browser"
         minSdkVersion 21
         targetSdkVersion 25
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
+    flavorDimensions "version"
     productFlavors {
         internal {
             applicationIdSuffix ".internal"
+            //versionNameSuffix "-internal"
             manifestPlaceholders = [app_name: "@string/app_name"]
         }
         fh {
             applicationIdSuffix ".fh"
+            //versionNameSuffix "-fh"
             manifestPlaceholders = [app_name: "FHBrowser"]
         }
     }
@@ -42,21 +45,21 @@ android {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile(name:'io.whisper-debug', ext:'aar')
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation(name:'io.whisper.vanilla-debug', ext:'aar')
 
-    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
+    androidTestImplementation('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
-    compile 'com.android.support:appcompat-v7:25.1.0'
-    compile 'com.android.support.constraint:constraint-layout:1.0.2'
-    compile 'com.android.support:design:25.1.0'
-    compile 'pub.devrel:easypermissions:0.4.0'
-    compile 'com.google.zxing:core:3.2.1'
-    compile 'cn.bingoogolapple:bga-qrcodecore:1.1.7@aar'
-    compile 'cn.bingoogolapple:bga-zxing:1.1.7@aar'
-    compile 'cn.bingoogolapple:bga-adapter:1.1.9@aar'
-    compile 'cn.bingoogolapple:bga-photopicker:1.2.3@aar'
-    compile 'com.github.bumptech.glide:glide:3.7.0'
-    testCompile 'junit:junit:4.12'
+    implementation 'com.android.support:appcompat-v7:25.1.0'
+    implementation 'com.android.support.constraint:constraint-layout:1.0.2'
+    implementation 'com.android.support:design:25.1.0'
+    implementation 'pub.devrel:easypermissions:0.4.0'
+    implementation 'com.google.zxing:core:3.2.1'
+    implementation 'cn.bingoogolapple:bga-qrcodecore:1.1.7@aar'
+    implementation 'cn.bingoogolapple:bga-zxing:1.1.7@aar'
+    implementation 'cn.bingoogolapple:bga-adapter:1.1.9@aar'
+    implementation 'cn.bingoogolapple:bga-photopicker:1.2.3@aar'
+    implementation 'com.github.bumptech.glide:glide:3.7.0'
+    implementation 'junit:junit:4.12'
 }

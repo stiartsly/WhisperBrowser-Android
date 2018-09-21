@@ -1,6 +1,6 @@
-package io.whisper.webbrowser;
+package io.whisper.browser;
 
-import io.whisper.exceptions.WhisperException;
+import io.whisper.vanilla.exceptions.WhisperException;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;

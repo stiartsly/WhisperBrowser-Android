@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="io.whisper.webbrowser">
+          package="io.whisper.browser"
+          xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
     <uses-permission android:name="android.permission.CAMERA"/>
@@ -8,7 +9,8 @@
     <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
 
     <application
-        android:name=".WebBrowserApp"
+        tools:replace="android:label"
+        android:name="io.whisper.browser.WebBrowserApp"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="${app_name}"
@@ -16,7 +18,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".AgentLoginActivity"
+            android:name="io.whisper.browser.AgentLoginActivity"
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
@@ -24,23 +26,23 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".WebBrowserActivity"
+            android:name="io.whisper.browser.WebBrowserActivity"
             android:screenOrientation="portrait">
         </activity>
         <activity
-            android:name=".ServerListActivity"
+            android:name="io.whisper.browser.ServerListActivity"
             android:screenOrientation="portrait">
         </activity>
         <activity
-            android:name=".AddServerActivity"
+            android:name="io.whisper.browser.AddServerActivity"
             android:screenOrientation="portrait">
         </activity>
         <activity
-            android:name=".ServerInfoActivity"
+            android:name="io.whisper.browser.ServerInfoActivity"
             android:screenOrientation="portrait">
         </activity>
         <activity
-            android:name=".AgentInfoActivity"
+            android:name="io.whisper.browser.AgentInfoActivity"
             android:screenOrientation="portrait">
         </activity>
     </application>

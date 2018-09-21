@@ -1,4 +1,4 @@
-package io.whisper.webbrowser;
+package io.whisper.browser;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;

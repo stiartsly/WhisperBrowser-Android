@@ -1,4 +1,4 @@
-package io.whisper.webbrowser;
+package io.whisper.browser;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
@@ -21,6 +21,6 @@ public class ExampleInstrumentedTest {
 		// Context of the app under test.
 		Context appContext = InstrumentationRegistry.getTargetContext();
 
-		assertEquals("io.whisper.webbrowser", appContext.getPackageName());
+		assertEquals("io.whisper.browser", appContext.getPackageName());
 	}
 }

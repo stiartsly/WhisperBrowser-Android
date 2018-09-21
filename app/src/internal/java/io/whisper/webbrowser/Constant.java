@@ -1,6 +1,6 @@
 package io.whisper.webbrowser;
 
-import io.whisper.session.TransportType;
+import io.whisper.vanilla.session.TransportType;
 
 public class Constant {
 	public static final String AppId  = "5guWk5ftzCzMvpxQEfPVWjKXimY4Xg973E33nph15uug";

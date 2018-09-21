@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="io.whisper.webbrowser.AddServerActivity">
+    tools:context="io.whisper.browser.AddServerActivity">
 
     <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"

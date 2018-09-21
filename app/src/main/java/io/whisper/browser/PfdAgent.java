@@ -1,12 +1,12 @@
-package io.whisper.webbrowser;
+package io.whisper.browser;
 
-import io.whisper.core.*;
-import io.whisper.exceptions.WhisperException;
-import io.whisper.session.IceTransportOptions;
-import io.whisper.session.Manager;
-import io.whisper.session.TcpTransportOptions;
-import io.whisper.session.TransportOptions;
-import io.whisper.session.UdpTransportOptions;
+import io.whisper.vanilla.*;
+import io.whisper.vanilla.exceptions.WhisperException;
+import io.whisper.vanilla.session.IceTransportOptions;
+import io.whisper.vanilla.session.Manager;
+import io.whisper.vanilla.session.TcpTransportOptions;
+import io.whisper.vanilla.session.TransportOptions;
+import io.whisper.vanilla.session.UdpTransportOptions;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -23,7 +23,6 @@ import java.util.Map;
 import java.util.HashMap;
 import java.io.File;
 import java.io.InputStream;
-import java.util.prefs.Preferences;
 
 public class PfdAgent extends AbstractWhisperHandler {
 	private static String TAG = "PfdAgent";
